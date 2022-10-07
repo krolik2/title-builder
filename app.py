@@ -60,7 +60,7 @@ try:
 
         if pb['value'] != 0:
             pb['value'] = 0
-        
+
         if myLabel2['text'] != "Status: Idle":
             myLabel2['text'] = "Status: Idle"
 
@@ -118,7 +118,7 @@ try:
 
     def lowerCaseSubStr(string):
         stringToList = string.split()
-        subStrToLower = ["I", "Na", "Z", "Do", "W", "Ze"]
+        subStrToLower = ["I", "Na", "Z", "Do", "W", "Ze", "Po", "Dla"]
         result = [
             substr.lower() if substr in subStrToLower else substr for substr in stringToList]
         return " ".join(result)
@@ -127,10 +127,18 @@ try:
         def home(*args):
             titleList.append(
                 {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {material}, {color}, {size}"})
+        
+        def furniture(*args):
+            titleList.append(
+                {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {material}, {color}, {size}"})
 
         def homeImprovement(*args):
             titleList.append(
                 {'asin': asin, 'title': f"{brand} {modelNum} {itemName}, {wattage}, {voltage}, {color}, {size}"})
+
+        def homeEntertainment(*args):
+            titleList.append(
+                {'asin': asin, 'title': f"{brand} {modelName} {size} {itemName}"})
 
         def kitchen(*args):
             titleList.append(
@@ -144,12 +152,24 @@ try:
             titleList.append(
                 {'asin': asin, 'title': f"{brand} {modelNum} {itemName}, {size}, {color}"})
 
+        def camera(*args):
+            titleList.append(
+                {'asin': asin, 'title': f"{brand} {modelName} {itemName} {color} {size}"})
+
+        def beauty(*args):
+            titleList.append(
+                {'asin': asin, 'title': f"{brand} {itemName} - {size}"})
+
+        def biss(*args):
+            titleList.append(
+                {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {color}, {size}"})
+
         try:
             for dic in list:
                 myLabel2.config(text=(f"Status: Processing titles..."))
                 pb['value'] += 1
                 root.update()
-                time.sleep(.0010)
+                time.sleep(.0001)
                 asin = dic['asin']
                 brand = dic['brand.value']
                 color = dic['color.value']
@@ -170,13 +190,16 @@ try:
                 modelName = modelName.title()
                 itemName = itemName.title()
                 itemName = lowerCaseSubStr(itemName)
-
+                
                 if GLname == "gl_home":
                     home(asin, brand, modelName, itemName, material, color, size)
 
                 elif GLname == "gl_home_improvement":
                     homeImprovement(asin, brand, modelNum, itemName,
                                     wattage, voltage, color, size)
+                
+                elif GLname == "gl_home_entertainment":
+                    homeEntertainment(asin, brand, modelName, size, itemName)
 
                 elif GLname == "gl_kitchen":
                     kitchen(asin, brand, modelNum, modelName,
@@ -185,8 +208,20 @@ try:
                 elif GLname == "gl_luggage":
                     luggage(asin, brand, modelName, itemName, color)
 
+                elif GLname == "gl_camera":
+                    camera(asin, brand, modelName, itemName, color)
+
+                elif GLname == "gl_beauty":
+                    beauty(asin, brand, itemName, size)
+                
+                elif GLname == "gl_biss":
+                    biss(asin, brand, modelName, itemName, size, color)
+
+                elif GLname == "gl_furniture":
+                    furniture(asin, brand, modelName, itemName, material, color, size)
+                
                 if GLname in genericGLlist:
-                    generic(asin, brand, modelNum, itemName, size, color)
+                    generic(asin, brand, modelName, itemName, color, size)
 
             pb['value'] = 0
             cleanMissingData(titleList)
@@ -201,9 +236,10 @@ try:
         for item in list:
             myLabel2.config(text=(f"Status: Cleaning up..."))
             pb['value'] += 1
-            time.sleep(.0010)
+            time.sleep(.0001)
             root.update()
             title = str(item['title'])
+            title = re.sub('\s\s+', ' ', title)
             title = re.sub('[, ]{2,}', ', ', title).strip()
             asin = item['asin']
             cleanTitleList.append({'asin': asin, 'item_name.value': title.rstrip(',')
