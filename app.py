@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 from datetime import datetime
 import os
 import re
@@ -25,7 +26,7 @@ try:
 
     root.geometry(
         f"{WIN_WIDTH}x{WIN_HEIGHT}+{(get_monitors()[0].width - WIN_WIDTH)//2}+{(get_monitors()[0].height - WIN_HEIGHT)//2}")
-    root.title('Papa Cleanup')
+    root.title('Papa Cleaner')
     root.resizable(False, False)
     root.columnconfigure(0, weight=1)
     root.rowconfigure(1, weight=1)
@@ -59,10 +60,10 @@ try:
             run_button['state'] = NORMAL
 
         if pb['value'] != 0:
-            pb['value'] = 0
+            updateStatusBar(0)
 
         if myLabel2['text'] != "Status: Idle":
-            myLabel2['text'] = "Status: Idle"
+            updateStatus(f"Status: Idle")
 
     dataList = []
 
@@ -295,7 +296,6 @@ try:
             asin = item['asin']
             cleanTitleList.append({'asin': asin, 'item_name.value': title.rstrip(',')
                                    if title.endswith(',') else title, 'sc_vendor_name': 'AmazonPl/NM5V9', 'login': userName})
-            updateStatus(f"Status: Building files...")
 
     def buildFiles():
         pd.io.formats.excel.ExcelFormatter.header_style = None
@@ -304,14 +304,15 @@ try:
         currentDate = now.strftime("%m%d%Y")
         fileName = f'FLEX_TCU {currentDate}_{userName}'
         output = pd.DataFrame(cleanTitleList)
-
-        # output.columns = pd.MultiIndex.from_product(
-        #     [("version=1.0.0"), ("asin", "item_name.value", "sc_vendor_name")]
-        # ) todo
-
+        # todo: add error handling for when saving data to open file which results in ui bugs now
         output.to_excel(f"{outPath}/{fileName}_qa.xlsx", index=False)
         output = output.loc[:, :'sc_vendor_name']
-        output.to_excel(f"{outPath}/{fileName}.xlsx", index=False)
+        filepath = f"{outPath}/{fileName}.xlsx"
+        writer = pd.ExcelWriter(filepath, engine='xlsxwriter')
+        output.to_excel(writer, sheet_name='Sheet1', index=False, startrow=1)
+        worksheet = writer.sheets['Sheet1']
+        worksheet.write_string(0, 0, 'version=1.0.0')
+        writer.save()
         showinfo(message=f"Files created successfully in: {outPath}")
         updateStatus(f"Status: Done!")
 
