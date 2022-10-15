@@ -6,9 +6,9 @@ from tkinter import DISABLED, NORMAL, Label, ttk
 from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo, showerror
 import pandas as pd
-import time
 from screeninfo import get_monitors
 import traceback
+import categories
 
 try:
     root = tk.Tk()
@@ -70,8 +70,11 @@ try:
         data = pd.read_excel(userFile)
         data.columns = map(str.lower, data.columns)
         dataList = [asin[1].to_dict() for asin in data.iterrows()]
+        updateStatus(f"Status: Checking file...")
         cleanData(dataList)
+        updateStatusBar(len(dataList))
         buildTitle(dataList)
+        updateStatusBar(0)
 
     open_button = ttk.Button(
         frame,
@@ -90,7 +93,7 @@ try:
         frame,
         orient='horizontal',
         mode='determinate',
-        length=280
+        length=300
     )
 
     pb.grid(column=1, row=1, columnspan=2)
@@ -100,14 +103,10 @@ try:
     myLabel.grid(row=3, column=0, columnspan=3, sticky=tk.W,)
     myLabel2.grid(row=0, column=0, columnspan=3, sticky=tk.N,)
 
-    # userName = os.environ.get('USER') - for macOs
     userName = os.getenv('username')
 
     titleList = []
     cleanTitleList = []
-
-    genericGLlist = ["gl_jewelry", "gl_watch",
-                     "gl_pet_products", "gl_drugstore"]
 
     def cleanData(list):
         for dic in list:
@@ -123,61 +122,85 @@ try:
             substr.lower() if substr in subStrToLower else substr for substr in stringToList]
         return " ".join(result)
 
+    def updateStatus(txt):
+        myLabel2.config(text=txt)
+
+    def updateStatusBar(num):
+        if num < 1:
+            pb['value'] = 0
+        for i in range(num):
+            amount = (i + 1) / num
+            pb['value'] = amount * 100
+            print(pb['value'])
+            root.after(1, root.update())
+
     def buildTitle(list):
-        def home(*args):
+        def group1(*args):
             titleList.append(
-                {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {material}, {color}, {size}"})
-        
-        def furniture(*args):
-            titleList.append(
-                {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {material}, {color}, {size}"})
+                {'asin': asin, 'title': f"{brand} {department} {modelName} {itemName}, {color}, {size}"})
 
-        def homeImprovement(*args):
+        def group11(*args):
             titleList.append(
-                {'asin': asin, 'title': f"{brand} {modelNum} {itemName}, {wattage}, {voltage}, {color}, {size}"})
+                {'asin': asin, 'title': f"{brand} {modelName} {modelNum} {itemName}, {color}, {size}"})
 
-        def homeEntertainment(*args):
+        def group14(*args):
             titleList.append(
-                {'asin': asin, 'title': f"{brand} {modelName} {size} {itemName}"})
+                {'asin': asin, 'title': f"{brand} {modelNum} {itemName}, {color}, {size}"})
 
-        def kitchen(*args):
+        def group2(*args):
             titleList.append(
-                {'asin': asin, 'title': f"{brand} {modelNum} {modelName} {itemName}, {material}, {wattage}, {size}, {color}"})
+                {'asin': asin, 'title': f"{brand} {department} {modelName} {modelNum} {itemName}, {color}, {size}"})
 
-        def luggage(*args):
+        def group3(*args):
             titleList.append(
-                {'asin': asin, 'title': f"{brand} {itemName}, {color}"})
+                {'asin': asin, 'title': f"{brand} {modelName} sub_brand_name_if_any {itemName}, {color}, {size}"})
 
-        def generic(*args):
-            titleList.append(
-                {'asin': asin, 'title': f"{brand} {modelNum} {itemName}, {size}, {color}"})
-
-        def camera(*args):
-            titleList.append(
-                {'asin': asin, 'title': f"{brand} {modelName} {itemName} {color} {size}"})
-
-        def beauty(*args):
-            titleList.append(
-                {'asin': asin, 'title': f"{brand} {itemName} - {size}"})
-
-        def biss(*args):
+        def group5(*args):
             titleList.append(
                 {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {color}, {size}"})
 
+        def group6(*args):
+            titleList.append(
+                {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {color}, {size}, {wattage} {voltage}"})
+
+        def group8(*args):
+            titleList.append(
+                {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {flavour}, {size}"})
+
+        def group9(*args):
+            titleList.append(
+                {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {material}, {color}, {size}"})
+
+        def group10(*args):
+            titleList.append(
+                {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {size}"})
+
+        def group15(*args):
+            titleList.append(
+                {'asin': asin, 'title': f"{brand} {partNum} {itemName}, {color}, {size}"})
+
+        def group7(*args):
+            titleList.append(
+                {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {color}, {wattage} {voltage}"})
+
+        def group12(*args):
+            titleList.append(
+                {'asin': asin, 'title': f"{brand} {modelName} {modelNum} {itemName}, processor, memory(ram), storage(dysk), graphic card, operating system, {color}, {size}"})
+
         try:
             for dic in list:
-                myLabel2.config(text=(f"Status: Processing titles..."))
-                pb['value'] += 1
-                root.update()
-                time.sleep(.0001)
                 asin = dic['asin']
                 brand = dic['brand.value']
                 color = dic['color.value']
+                department = dic['department.value']
                 GLname = dic['gl_product_group_type.value']
                 itemName = dic['item_type_name.value']
+                flavour = dic['flavour.value']
                 material = dic['material.value']
                 modelName = dic['model_name.value']
                 modelNum = dic['model_number.value']
+                partNum = dic['part_number.value']
+                prodType = dic['product_type.value']
                 size = dic['size.value']
                 wattage = dic['wattage.value']
                 voltage = dic['voltage.value']
@@ -190,75 +213,107 @@ try:
                 modelName = modelName.title()
                 itemName = itemName.title()
                 itemName = lowerCaseSubStr(itemName)
-                
-                if GLname == "gl_home":
-                    home(asin, brand, modelName, itemName, material, color, size)
 
-                elif GLname == "gl_home_improvement":
-                    homeImprovement(asin, brand, modelNum, itemName,
-                                    wattage, voltage, color, size)
-                
-                elif GLname == "gl_home_entertainment":
-                    homeEntertainment(asin, brand, modelName, size, itemName)
+                if GLname in categories.gl_group1:
+                    group1(asin, brand, department,
+                           modelName, itemName, color, size)
 
-                elif GLname == "gl_kitchen":
-                    kitchen(asin, brand, modelNum, modelName,
-                            itemName, material, wattage, size, color)
+                elif GLname in categories.gl_group14:
+                    group14(asin, brand, modelNum, itemName, color, size)
 
-                elif GLname == "gl_luggage":
-                    luggage(asin, brand, modelName, itemName, color)
+                elif GLname in categories.gl_group2:
+                    group2(asin, brand, department, modelName,
+                           modelNum, itemName, size, color)
 
-                elif GLname == "gl_camera":
-                    camera(asin, brand, modelName, itemName, color)
+                elif GLname in categories.gl_group3:
+                    group3(asin, brand, modelName, itemName, color, size)
 
-                elif GLname == "gl_beauty":
-                    beauty(asin, brand, itemName, size)
-                
-                elif GLname == "gl_biss":
-                    biss(asin, brand, modelName, itemName, size, color)
+                elif GLname in categories.gl_group6:
+                    group6(asin, brand, modelName, itemName,
+                           color, size, wattage, voltage)
 
-                elif GLname == "gl_furniture":
-                    furniture(asin, brand, modelName, itemName, material, color, size)
-                
-                if GLname in genericGLlist:
-                    generic(asin, brand, modelName, itemName, color, size)
+                elif GLname in categories.gl_group8:
+                    group8(asin, brand, modelName, itemName, flavour, size)
 
-            pb['value'] = 0
+                elif GLname in categories.gl_group9:
+                    group9(asin, brand, modelName,
+                           itemName, material, color, size)
+
+                elif GLname in categories.gl_group10 and prodType in categories.product_group5:
+                    group5(asin, brand, modelName, itemName, color, size)
+
+                elif GLname in categories.gl_group10:
+                    group10(asin, brand, modelName, itemName, size)
+
+                elif GLname in categories.gl_group15 and prodType in categories.product_group1:
+                    group1(asin, brand, department,
+                           modelName, itemName, color, size)
+
+                elif GLname in categories.gl_group15:
+                    group15(asin, brand, partNum, itemName, color, size)
+
+                elif GLname in categories.gl_group5 and prodType in categories.product_group11:
+                    group11(asin, brand, modelName,
+                            modelNum, itemName, color, size)
+
+                elif GLname in categories.gl_group5 and prodType in categories.product_group7:
+                    group7(asin, brand, modelName, itemName,
+                           color, wattage, voltage)
+
+                elif GLname in categories.gl_group5 and prodType in categories.product_group9:
+                    group9(asin, brand, modelName,
+                           itemName, material, color, size)
+
+                elif GLname in categories.gl_group5:
+                    group5(asin, brand, modelName, itemName, color, size)
+
+                elif GLname in categories.gl_group11 and prodType in categories.product_group12:
+                    group12(asin, brand, modelName,
+                            modelNum, itemName, color, size)
+
+                elif GLname in categories.gl_group11:
+                    group11(asin, brand, modelName,
+                            modelNum, itemName, color, size)
+
+            updateStatusBar(0)
+            updateStatus(f"Status: Processing titles...")
+            updateStatusBar(len(dataList))
             cleanMissingData(titleList)
+            updateStatus(f"Status: Cleaning up & building files...")
+            updateStatusBar(len(titleList))
             buildFiles()
 
-        except KeyError as err:
-            showerror(message=f"Error! Missing column: {err}")
-            pb['value'] = 0
-            myLabel2.config(text=(f"Status: Idle"))
+        except KeyError as colName:
+            showerror(message=f"Error! Missing column: {colName}")
+            updateStatus(f"Status: Idle")
 
     def cleanMissingData(list):
         for item in list:
-            myLabel2.config(text=(f"Status: Cleaning up..."))
-            pb['value'] += 1
-            time.sleep(.0001)
-            root.update()
             title = str(item['title'])
             title = re.sub('\s\s+', ' ', title)
             title = re.sub('[, ]{2,}', ', ', title).strip()
             asin = item['asin']
             cleanTitleList.append({'asin': asin, 'item_name.value': title.rstrip(',')
                                    if title.endswith(',') else title, 'sc_vendor_name': 'AmazonPl/NM5V9', 'login': userName})
-
-        myLabel2.config(text=(f"Status: Building files..."))
+            updateStatus(f"Status: Building files...")
 
     def buildFiles():
+        pd.io.formats.excel.ExcelFormatter.header_style = None
         outPath = createDirectory(userFile)
         now = datetime.now()
         currentDate = now.strftime("%m%d%Y")
-        fileName = f'{userName}_{currentDate}'
+        fileName = f'FLEX_TCU {currentDate}_{userName}'
         output = pd.DataFrame(cleanTitleList)
+
+        # output.columns = pd.MultiIndex.from_product(
+        #     [("version=1.0.0"), ("asin", "item_name.value", "sc_vendor_name")]
+        # ) todo
+
         output.to_excel(f"{outPath}/{fileName}_qa.xlsx", index=False)
         output = output.loc[:, :'sc_vendor_name']
         output.to_excel(f"{outPath}/{fileName}.xlsx", index=False)
         showinfo(message=f"Files created successfully in: {outPath}")
-        myLabel2.config(text=(f"Status: Done!"))
-        pb['value'] = 0
+        updateStatus(f"Status: Done!")
 
     def createDirectory(filepath):
         directory = filepath.split("/")
