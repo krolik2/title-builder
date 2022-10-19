@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from datetime import datetime
 import os
 import re
@@ -53,6 +52,8 @@ try:
             filetypes=[("Excel files", ".xlsx .xls")]
         )
 
+        root.focus_set()
+
         if filepath:
             global userFile
             myLabel.config(text=(f"filepath: {filepath}"))
@@ -90,11 +91,17 @@ try:
         state=DISABLED
     )
 
+    s = ttk.Style()
+    s.theme_use('clam')
+    s.configure("red.Horizontal.TProgressbar", foreground='yellow', background='yellow')
+
     pb = ttk.Progressbar(
         frame,
         orient='horizontal',
         mode='determinate',
-        length=300
+        length=300,
+        style="red.Horizontal.TProgressbar"
+
     )
 
     pb.grid(column=1, row=1, columnspan=2)
@@ -132,7 +139,6 @@ try:
         for i in range(num):
             amount = (i + 1) / num
             pb['value'] = amount * 100
-            print(pb['value'])
             root.after(1, root.update())
 
     def buildTitle(list):
@@ -287,6 +293,7 @@ try:
         except KeyError as colName:
             showerror(message=f"Error! Missing column: {colName}")
             updateStatus(f"Status: Idle")
+            updateStatusBar(0)
 
     def cleanMissingData(list):
         for item in list:
@@ -298,23 +305,29 @@ try:
                                    if title.endswith(',') else title, 'sc_vendor_name': 'AmazonPl/NM5V9', 'login': userName})
 
     def buildFiles():
-        pd.io.formats.excel.ExcelFormatter.header_style = None
-        outPath = createDirectory(userFile)
-        now = datetime.now()
-        currentDate = now.strftime("%m%d%Y")
-        fileName = f'FLEX_TCU {currentDate}_{userName}'
-        output = pd.DataFrame(cleanTitleList)
-        # todo: add error handling for when saving data to open file which results in ui bugs now
-        output.to_excel(f"{outPath}/{fileName}_qa.xlsx", index=False)
-        output = output.loc[:, :'sc_vendor_name']
-        filepath = f"{outPath}/{fileName}.xlsx"
-        writer = pd.ExcelWriter(filepath, engine='xlsxwriter')
-        output.to_excel(writer, sheet_name='Sheet1', index=False, startrow=1)
-        worksheet = writer.sheets['Sheet1']
-        worksheet.write_string(0, 0, 'version=1.0.0')
-        writer.save()
-        showinfo(message=f"Files created successfully in: {outPath}")
-        updateStatus(f"Status: Done!")
+        try:
+            pd.io.formats.excel.ExcelFormatter.header_style = None
+            outPath = createDirectory(userFile)
+            now = datetime.now()
+            currentDate = now.strftime("%m%d%Y")
+            fileName = f'FLEX_TCU {currentDate}_{userName}'
+            output = pd.DataFrame(cleanTitleList)
+            output.to_excel(f"{outPath}/{fileName}_qa.xlsx", index=False)
+            output = output.loc[:, :'sc_vendor_name']
+            filepath = f"{outPath}/{fileName}.xlsx"
+            writer = pd.ExcelWriter(filepath, engine='xlsxwriter')
+            output.to_excel(writer, sheet_name='Sheet1', index=False, startrow=1)
+            worksheet = writer.sheets['Sheet1']
+            worksheet.write_string(0, 0, 'version=1.0.0')
+            writer.save()
+            showinfo(message=f"Files created successfully in: {outPath}")
+            updateStatus(f"Status: Done!")
+            root.focus_set()
+        except:
+            showerror(message=f"Error! Close the file before trying to overwrite it")
+            updateStatus(f"Status: Idle")
+            updateStatusBar(0)
+            root.focus_set()
 
     def createDirectory(filepath):
         directory = filepath.split("/")
