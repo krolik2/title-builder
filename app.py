@@ -9,13 +9,22 @@ import pandas as pd
 from screeninfo import get_monitors
 import traceback
 import categories
+import sys
+from more_itertools import pairwise
+from sys import platform
 
 try:
     root = tk.Tk()
 
+    if platform == "darwin":
+        userName = os.environ.get('USER')
+    elif platform == "win32":
+        userName = os.getenv('username')
+
     def resource_path(relative_path):
         try:
-            base_path = sys._MEIPASS
+            base_path = getattr(sys, '_MEIPASS', os.path.dirname(
+                os.path.abspath(__file__)))
         except Exception:
             base_path = os.path.abspath(".")
         return os.path.join(base_path, relative_path)
@@ -64,7 +73,7 @@ try:
             updateStatusBar(0)
 
         if myLabel2['text'] != "Status: Idle":
-            updateStatus(f"Status: Idle")
+            updateStatus("Status: Idle")
 
     dataList = []
 
@@ -72,11 +81,10 @@ try:
         data = pd.read_excel(userFile)
         data.columns = map(str.lower, data.columns)
         dataList = [asin[1].to_dict() for asin in data.iterrows()]
-        updateStatus(f"Status: Checking file...")
-        cleanData(dataList)
+        updateStatus("Status: Processing file...")
         updateStatusBar(len(dataList))
+        cleanData(dataList)
         buildTitle(dataList)
-        updateStatusBar(0)
 
     open_button = ttk.Button(
         frame,
@@ -93,7 +101,8 @@ try:
 
     s = ttk.Style()
     s.theme_use('clam')
-    s.configure("red.Horizontal.TProgressbar", foreground='yellow', background='yellow')
+    s.configure("red.Horizontal.TProgressbar",
+                foreground='yellow', background='yellow')
 
     pb = ttk.Progressbar(
         frame,
@@ -111,8 +120,6 @@ try:
     myLabel.grid(row=3, column=0, columnspan=3, sticky=tk.W,)
     myLabel2.grid(row=0, column=0, columnspan=3, sticky=tk.N,)
 
-    userName = os.getenv('username')
-
     titleList = []
     cleanTitleList = []
 
@@ -125,7 +132,8 @@ try:
 
     def lowerCaseSubStr(string):
         stringToList = string.split()
-        subStrToLower = ["I", "Na", "Z", "Do", "W", "Ze", "Po", "Dla"]
+        subStrToLower = ['Bez', 'Dla', 'Do', 'I', 'Jak' 'Lub', 'Na',
+                         'Nad', 'O', 'Od', 'Po', 'Pod', 'Przed', 'Się', 'W', 'Z', 'Ze']
         result = [
             substr.lower() if substr in subStrToLower else substr for substr in stringToList]
         return " ".join(result)
@@ -136,9 +144,14 @@ try:
     def updateStatusBar(num):
         if num < 1:
             pb['value'] = 0
-        for i in range(num):
-            amount = (i + 1) / num
-            pb['value'] = amount * 100
+            return
+        for idx in range(num):
+            amount = (idx + 1) / num
+            rounded = int(round(amount * 100))
+        for current, next in pairwise(range(rounded + 1)):
+            if current == next:
+                return
+            pb['value'] = next
             root.after(1, root.update())
 
     def buildTitle(list):
@@ -197,14 +210,14 @@ try:
         try:
             for dic in list:
                 asin = dic['asin']
-                brand = dic['brand.value']
-                color = dic['color.value']
-                department = dic['department.value']
+                brand = dic['brand.value'].title()
+                color = dic['color.value'].title()
+                department = dic['department.value'].title()
                 GLname = dic['gl_product_group_type.value']
-                itemName = dic['item_type_name.value']
-                flavour = dic['flavour.value']
-                material = dic['material.value']
-                modelName = dic['model_name.value']
+                itemName = dic['item_type_name.value'].title()
+                flavour = dic['flavour.value'].title()
+                material = dic['material.value'].title()
+                modelName = dic['model_name.value'].title()
                 modelNum = dic['model_number.value']
                 partNum = dic['part_number.value']
                 prodType = dic['product_type.value']
@@ -217,8 +230,6 @@ try:
                 if voltage != "":
                     voltage = voltage + " V"
 
-                modelName = modelName.title()
-                itemName = itemName.title()
                 itemName = lowerCaseSubStr(itemName)
 
                 if GLname in categories.gl_group1:
@@ -282,24 +293,18 @@ try:
                     group11(asin, brand, modelName,
                             modelNum, itemName, color, size)
 
-            updateStatusBar(0)
-            updateStatus(f"Status: Processing titles...")
-            updateStatusBar(len(dataList))
             cleanMissingData(titleList)
-            updateStatus(f"Status: Cleaning up & building files...")
-            updateStatusBar(len(titleList))
             buildFiles()
-
         except KeyError as colName:
             showerror(message=f"Error! Missing column: {colName}")
-            updateStatus(f"Status: Idle")
+            updateStatus("Status: Idle")
             updateStatusBar(0)
 
     def cleanMissingData(list):
         for item in list:
             title = str(item['title'])
-            title = re.sub('\s\s+', ' ', title)
-            title = re.sub('[, ]{2,}', ', ', title).strip()
+            title = re.sub('\s\s+', ' ', title) #replace multiple spaces/white chars with single space
+            title = re.sub('[, ]{2,}', ', ', title).strip() #replace more than one comma with comma space and trim
             asin = item['asin']
             cleanTitleList.append({'asin': asin, 'item_name.value': title.rstrip(',')
                                    if title.endswith(',') else title, 'sc_vendor_name': 'AmazonPl/NM5V9', 'login': userName})
@@ -316,16 +321,18 @@ try:
             output = output.loc[:, :'sc_vendor_name']
             filepath = f"{outPath}/{fileName}.xlsx"
             writer = pd.ExcelWriter(filepath, engine='xlsxwriter')
-            output.to_excel(writer, sheet_name='Sheet1', index=False, startrow=1)
+            output.to_excel(writer, sheet_name='Sheet1',
+                            index=False, startrow=1)
             worksheet = writer.sheets['Sheet1']
             worksheet.write_string(0, 0, 'version=1.0.0')
             writer.save()
             showinfo(message=f"Files created successfully in: {outPath}")
-            updateStatus(f"Status: Done!")
+            updateStatus("Status: Done!")
+            updateStatusBar(0)
             root.focus_set()
         except:
-            showerror(message=f"Error! Close the file before trying to overwrite it")
-            updateStatus(f"Status: Idle")
+            showerror(message="Error writing file!")
+            updateStatus("Status: Idle")
             updateStatusBar(0)
             root.focus_set()
 
