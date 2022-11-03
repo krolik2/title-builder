@@ -1,5 +1,4 @@
 from datetime import datetime
-from msilib.schema import Error
 import os
 import re
 import tkinter as tk
@@ -38,7 +37,7 @@ WIN_HEIGHT = 309
 
 root.geometry(
     f"{WIN_WIDTH}x{WIN_HEIGHT}+{(get_monitors()[0].width - WIN_WIDTH)//2}+{(get_monitors()[0].height - WIN_HEIGHT)//2}")
-root.title('Papa Cleaner')
+root.title('Papa Cleaner - v1.0.2')
 root.resizable(False, False)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
@@ -294,6 +293,9 @@ def buildTitle(list):
             elif GLname in categories.gl_group5 and prodType in categories.product_group9:
                 group9(asin, brand, modelName,
                        itemName, material, color, size)
+
+            elif GLname in categories.gl_group5 and prodType in categories.product_group8:
+                group8(asin, brand, modelName, itemName, flavour, size)
 
             elif GLname in categories.gl_group5:
                 group5(asin, brand, modelName, itemName, color, size)

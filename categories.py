@@ -1,6 +1,6 @@
 
 gl_group5 = ['gl_musical_instruments', "gl_luggage", "gl_beauty", "gl_home", "gl_pet_products",
-                "gl_wireless", "gl_vide_games", "gl_home_improvement", "gl_kitchen", "gl_lawn_and_garden"]
+                "gl_wireless", "gl_video_games", "gl_home_improvement", "gl_kitchen", "gl_lawn_and_garden"]
 gl_group2 = ['gl_sports']
 gl_group9 = ['gl_furniture']
 gl_group11 = ['gl_biss', 'gl_camera', "gl_electronics", "gl_home_entertainment",
@@ -71,6 +71,20 @@ product_group11 = ['AIR_CONDITIONER',
                     'VENT_HOOD']
 
 product_group7 = ['HARDWARE',
+                    'TOOLS', 'COFFEE_MAKER',
+                    'ELECTRIC_FAN',
+                    'RICE_COOKERS',
+                    'SMALL_HOME_APPLIANCES',
+                    'VACUUM_CLEANER']
+
+product_group12 = ['COMPUTER',
+                    'NETWORKING_DEVICE',
+                    'NOTEBOOK_COMPUTER',
+                    'PERSONAL_COMPUTER']
+
+product_group8 = ['PET_FOOD']
+
+product_group5 = ['BLOOD_PRESSURE_MONITOR',
                     'HARDWARE_HANDLE',
                     'HOME_LIGHTING_ACCESSORY',
                     'HOME_ORGANIZERS_AND_STORAGE',
@@ -89,20 +103,6 @@ product_group7 = ['HARDWARE',
                     'SHOWER_ENCLOSURE',
                     'STORAGE_BOX',
                     'STORAGE_HOOK',
-                    'TOOLS', 'COFFEE_MAKER',
-                    'ELECTRIC_FAN',
-                    'RICE_COOKERS',
-                    'SMALL_HOME_APPLIANCES',
-                    'VACUUM_CLEANER']
-
-product_group12 = ['COMPUTER',
-                    'NETWORKING_DEVICE ',
-                    'NOTEBOOK_COMPUTER',
-                    'PERSONAL_COMPUTER']
-
-product_group4 = ['PET_FOOD']
-
-product_group5 = ['BLOOD_PRESSURE_MONITOR',
                     'CLEANING_PRODUCT',
                     'DAILY_LIVING_AIDS',
                     'GIFT_WRAP',
