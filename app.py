@@ -90,7 +90,7 @@ def processData():
     updateStatus("Status: Processing file...")
     updateStatusBar(len(dataList))
     cleanData(dataList)
-    buildTitle(dataList)
+    build_titles(dataList)
 
 
 open_button = ttk.Button(
@@ -127,8 +127,9 @@ run_button.grid(row=2, column=2, pady=80)
 myLabel.grid(row=3, column=0, columnspan=3, sticky=tk.W,)
 myLabel2.grid(row=0, column=0, columnspan=3, sticky=tk.N,)
 
-titleList = []
-cleanTitleList = []
+
+title_list = []
+clean_title_list = []
 
 
 def cleanData(list):
@@ -166,150 +167,144 @@ def updateStatusBar(num):
         root.after(1, root.update())
 
 
-def buildTitle(list):
-    def group1(*args):
-        titleList.append(
-            {'asin': asin, 'title': f"{brand} {department} {modelName} {itemName}, {color}, {size}"})
+class TitleBuilder:
+    def __init__(self, asin, brand, department, model_name, model_num, color, size, flavour, material, part_num, wattage, voltage, item_name):
+        self.asin = asin
+        self.brand = brand.title()
+        self.department = department.title()
+        self.model_name = model_name.title()
+        self.model_num = model_num.title()
+        self.color = color.title()
+        self.size = size
+        self.model_num = model_num
+        self.flavour = flavour.title()
+        self.material = material.title()
+        self.part_num = part_num
+        self.wattage = wattage + "W" if wattage else None
+        self.voltage = voltage + "V" if voltage else None
+        self.item_name = item_name.title()
 
-    def group11(*args):
-        titleList.append(
-            {'asin': asin, 'title': f"{brand} {modelName} {modelNum} {itemName}, {color}, {size}"})
+        lowerCaseSubStr(item_name)
 
-    def group14(*args):
-        titleList.append(
-            {'asin': asin, 'title': f"{brand} {modelNum} {itemName}, {color}, {size}"})
+    def create_title_dictionary(self, title):
+        return {'asin': self.asin, 'title': title}
 
-    def group2(*args):
-        titleList.append(
-            {'asin': asin, 'title': f"{brand} {department} {modelName} {modelNum} {itemName}, {color}, {size}"})
+    def build_title_group1(self):
+        title = f"{self.brand} {self.department} {self.model_name} {self.item_name}, {self.color}, {self.size}"
+        return self.create_title_dictionary(title)
 
-    def group3(*args):
-        titleList.append(
-            {'asin': asin, 'title': f"{brand} {modelName} sub_brand_name_if_any {itemName}, {color}, {size}"})
+    def build_title_group11(self):
+        title = f"{self.brand} {self.model_name} {self.model_num} {self.item_name}, {self.color}, {self.size}"
+        return self.create_title_dictionary(title)
 
-    def group5(*args):
-        titleList.append(
-            {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {color}, {size}"})
+    def build_title_group14(self):
+        title = f"{self.brand} {self.model_num} {self.model_num}, {self.color}, {self.size}"
+        return self.create_title_dictionary(title)
 
-    def group6(*args):
-        titleList.append(
-            {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {color}, {size}, {wattage} {voltage}"})
+    def build_title_group2(self):
+        title = f"{self.brand} {self.department} {self.model_name} {self.model_num} {self.item_name}, {self.color}, {self.size}"
+        return self.create_title_dictionary(title)
 
-    def group8(*args):
-        titleList.append(
-            {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {flavour}, {size}"})
+    def build_title_group3(self):
+        title = f"{self.brand} {self.model_name} sub_brand_name_if_any {self.item_name}, {self.color}, {self.size}"
+        return self.create_title_dictionary(title)
 
-    def group9(*args):
-        titleList.append(
-            {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {material}, {color}, {size}"})
+    def build_title_group5(self):
+        title = f"{self.brand} {self.model_name} {self.item_name}, {self.color}, {self.size}"
+        return self.create_title_dictionary(title)
 
-    def group10(*args):
-        titleList.append(
-            {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {size}"})
+    def build_title_group6(self):
+        title = f"{self.brand} {self.model_name} {self.item_name}, {self.color}, {self.size}, {self.wattage} {self.voltage}"
+        return self.create_title_dictionary(title)
 
-    def group15(*args):
-        titleList.append(
-            {'asin': asin, 'title': f"{brand} {partNum} {itemName}, {color}, {size}"})
+    def build_title_group8(self):
+        title = f"{self.brand} {self.model_name} {self.item_name}, {self.flavour}, {self.size}"
+        return self.create_title_dictionary(title)
 
-    def group7(*args):
-        titleList.append(
-            {'asin': asin, 'title': f"{brand} {modelName} {itemName}, {color}, {wattage} {voltage}"})
+    def build_title_group9(self):
+        title = f"{self.brand} {self.model_name} {self.item_name}, {self.material}, {self.color}, {self.size}"
+        return self.create_title_dictionary(title)
 
-    def group12(*args):
-        titleList.append(
-            {'asin': asin, 'title': f"{brand} {modelName} {modelNum} {itemName}, processor, memory(ram), storage(dysk), graphic card, operating system, {color}, {size}"})
+    def build_title_group10(self):
+        title = f"{self.brand} {self.model_name} {self.item_name}, {self.size}"
+        return self.create_title_dictionary(title)
 
+    def build_title_group15(self):
+        title = f"{self.brand} {self.part_num} {self.item_name}, {self.color}, {self.size}"
+        return self.create_title_dictionary(title)
+
+    def build_title_group7(self):
+        title = f"{self.brand} {self.model_name} {self.item_name}, {self.color}, {self.wattage} {self.voltage}"
+        return self.create_title_dictionary(title)
+
+    def build_title_group12(self):
+        title = f"{self.brand} {self.model_name} {self.model_num} {self.item_name}, processor, memory(ram), storage(dysk), graphic card, operating system, {self.color}, {self.size}"
+        return self.create_title_dictionary(title)
+
+
+def build_titles(list):
     try:
         for dic in list:
-            asin = dic['asin']
-            brand = dic['brand.value'].title()
-            color = dic['color.value'].title()
-            department = dic['department.value'].title()
-            GLname = dic['gl_product_group_type.value']
-            itemName = dic['item_type_name.value'].title()
-            flavour = dic['flavour.value'].title()
-            material = dic['material.value'].title()
-            modelName = dic['model_name.value'].title()
-            modelNum = dic['model_number.value']
-            partNum = dic['part_number.value']
-            prodType = dic['product_type.value']
-            size = dic['size.value']
-            wattage = dic['wattage.value']
-            voltage = dic['voltage.value']
+            asin = dic.get('asin')
+            brand = dic.get('brand.value')
+            color = dic.get('color.value')
+            department = dic.get('department.value')
+            GLname = dic.get('gl_product_group_type.value')
+            model_num = dic.get('item_type_name.value')
+            flavour = dic.get('flavour.value')
+            material = dic.get('material.value')
+            model_name = dic.get('model_name.value')
+            model_num = dic.get('model_number.value')
+            part_num = dic.get('part_number.value')
+            size = dic.get('size.value')
+            wattage = dic.get('wattage.value')
+            voltage = dic.get('voltage.value')
+            prodType = dic.get('product_type.value')
+            item_name = dic.get('item_type_name.value')
 
-            if wattage != "":
-                wattage = wattage + " W"
-            if voltage != "":
-                voltage = voltage + " V"
-
-            itemName = lowerCaseSubStr(itemName)
+            title_builder = TitleBuilder(asin, brand, department, model_name, model_num,
+                                         color, size, flavour, material, part_num, wattage, voltage, item_name)
 
             if GLname in categories.gl_group1:
-                group1(asin, brand, department,
-                       modelName, itemName, color, size)
-
+                title_list.append(title_builder.build_title_group1())
             elif GLname in categories.gl_group14:
-                group14(asin, brand, modelNum, itemName, color, size)
-
+                title_list.append(title_builder.build_title_group14())
             elif GLname in categories.gl_group2:
-                group2(asin, brand, department, modelName,
-                       modelNum, itemName, size, color)
-
+                title_list.append(title_builder.build_title_group2())
             elif GLname in categories.gl_group3:
-                group3(asin, brand, modelName, itemName, color, size)
-
+                title_list.append(title_builder.build_title_group3())
             elif GLname in categories.gl_group6:
-                group6(asin, brand, modelName, itemName,
-                       color, size, wattage, voltage)
-
+                title_list.append(title_builder.build_title_group6())
             elif GLname in categories.gl_group8:
-                group8(asin, brand, modelName, itemName, flavour, size)
-
+                title_list.append(title_builder.build_title_group8())
             elif GLname in categories.gl_group9:
-                group9(asin, brand, modelName,
-                       itemName, material, color, size)
-
+                title_list.append(title_builder.build_title_group9())
             elif GLname in categories.gl_group10 and prodType in categories.product_group5:
-                group5(asin, brand, modelName, itemName, color, size)
-
+                title_list.append(title_builder.build_title_group5())
             elif GLname in categories.gl_group10:
-                group10(asin, brand, modelName, itemName, size)
-
+                title_list.append(title_builder.build_title_group10())
             elif GLname in categories.gl_group15 and prodType in categories.product_group1:
-                group1(asin, brand, department,
-                       modelName, itemName, color, size)
-
+                title_list.append(title_builder.build_title_group1())
             elif GLname in categories.gl_group15:
-                group15(asin, brand, partNum, itemName, color, size)
-
+                title_list.append(title_builder.build_title_group15())
             elif GLname in categories.gl_group5 and prodType in categories.product_group11:
-                group11(asin, brand, modelName,
-                        modelNum, itemName, color, size)
-
+                title_list.append(title_builder.build_title_group11())
             elif GLname in categories.gl_group5 and prodType in categories.product_group7:
-                group7(asin, brand, modelName, itemName,
-                       color, wattage, voltage)
-
+                title_list.append(title_builder.build_title_group7())
             elif GLname in categories.gl_group5 and prodType in categories.product_group9:
-                group9(asin, brand, modelName,
-                       itemName, material, color, size)
-
+                title_list.append(title_builder.build_title_group9())
             elif GLname in categories.gl_group5 and prodType in categories.product_group8:
-                group8(asin, brand, modelName, itemName, flavour, size)
-
+                title_list.append(title_builder.build_title_group8())
             elif GLname in categories.gl_group5:
-                group5(asin, brand, modelName, itemName, color, size)
-
+                title_list.append(title_builder.build_title_group5())
             elif GLname in categories.gl_group11 and prodType in categories.product_group12:
-                group12(asin, brand, modelName,
-                        modelNum, itemName, color, size)
-
+                title_list.append(title_builder.build_title_group12())
             elif GLname in categories.gl_group11:
-                group11(asin, brand, modelName,
-                        modelNum, itemName, color, size)
+                title_list.append(title_builder.build_title_group11())
 
-        cleanMissingData(titleList)
+        cleanMissingData(title_list)
         buildFiles()
+
     except KeyError as colName:
         showerror(message=f"Error! Missing column: {colName}")
         updateStatus("Status: Idle")
@@ -320,13 +315,13 @@ def buildTitle(list):
 def cleanMissingData(list):
     for item in list:
         title = str(item['title'])
+        asin = item['asin']
         # replace multiple spaces/white chars with single space
         title = re.sub('\s\s+', ' ', title)
         # replace more than one comma with comma space and trim
         title = re.sub('[, ]{2,}', ', ', title).strip()
-        asin = item['asin']
-        cleanTitleList.append({'asin': asin, 'item_name.value': title.rstrip(',')
-                               if title.endswith(',') else title, 'sc_vendor_name': 'AmazonPl/NM5V9', 'login': userName})
+        clean_title_list.append({'asin': asin, 'item_name.value': title.rstrip(',')
+                                 if title.endswith(',') else title, 'sc_vendor_name': 'AmazonPl/NM5V9', 'login': userName})
 
 
 def buildFiles():
@@ -336,7 +331,7 @@ def buildFiles():
         now = datetime.now()
         currentDate = now.strftime("%m%d%Y")
         fileName = f'FLEX_TCU {currentDate}_{userName}'
-        output = pd.DataFrame(cleanTitleList)
+        output = pd.DataFrame(clean_title_list)
         output.to_excel(f"{outPath}/{fileName}_qa.xlsx", index=False)
         output = output.loc[:, :'sc_vendor_name']
         filepath = f"{outPath}/{fileName}.xlsx"
