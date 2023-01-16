@@ -37,7 +37,7 @@ WIN_HEIGHT = 309
 
 root.geometry(
     f"{WIN_WIDTH}x{WIN_HEIGHT}+{(get_monitors()[0].width - WIN_WIDTH)//2}+{(get_monitors()[0].height - WIN_HEIGHT)//2}")
-root.title('Papa Cleaner - v1.0.2')
+root.title('Papa Cleaner - v1.0.3')
 root.resizable(False, False)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
@@ -129,7 +129,6 @@ myLabel2.grid(row=0, column=0, columnspan=3, sticky=tk.N,)
 
 
 title_list = []
-clean_title_list = []
 
 
 def cleanData(list):
@@ -138,15 +137,6 @@ def cleanData(list):
             if isinstance(v, float):
                 v = '{0:g}'.format(v).strip().replace('nan', '')
             dic[k] = str(v).strip().replace('nan', '')
-
-
-def lowerCaseSubStr(string):
-    stringToList = string.split()
-    subStrToLower = ['Bez', 'Dla', 'Do', 'I', 'Jak' 'Lub', 'Na',
-                     'Nad', 'O', 'Od', 'Po', 'Pod', 'Przed', 'Się', 'W', 'Z', 'Ze']
-    result = [
-        substr.lower() if substr in subStrToLower else substr for substr in stringToList]
-    return " ".join(result)
 
 
 def updateStatus(txt):
@@ -168,7 +158,7 @@ def updateStatusBar(num):
 
 
 class TitleBuilder:
-    def __init__(self, asin, brand, department, model_name, model_num, color, size, flavour, material, part_num, wattage, voltage, item_name):
+    def __init__(self, asin, brand, department, model_name, model_num, color, size, flavour, material, part_num, wattage, voltage, item_name, cpu_model, computer_memory, memory_storage_capacity, hard_disk, graphics_description, operating_system, keyboard_layout, sub_brand):
         self.asin = asin
         self.brand = brand.title()
         self.department = department.title()
@@ -182,9 +172,35 @@ class TitleBuilder:
         self.part_num = part_num
         self.wattage = wattage + "W" if wattage else None
         self.voltage = voltage + "V" if voltage else None
-        self.item_name = item_name.title()
+        self.item_name = self.lower_case_sub_str(item_name.title())
+        self.cpu_model = cpu_model
+        self.computer_memory = computer_memory
+        self.memory_storage_capacity = memory_storage_capacity
+        self.hard_disk = hard_disk
+        self.graphics_description = graphics_description
+        self.operating_system = keyboard_layout
+        self.sub_brand = sub_brand
+        # self.number_of_pcs = self.makeStrIfMoreThanOne(self.convert_to_int(number_of_pcs))
 
-        lowerCaseSubStr(item_name)
+    # def convert_to_int(self, x):
+    #     try:
+    #         return int(x)
+    #     except ValueError:
+    #         return 0
+
+    # def makeStrIfMoreThanOne(self, func):
+    #     if func > 1:
+    #         return "x" + str(func)
+    #     else:
+    #         return ""
+
+    def lower_case_sub_str(self, string):
+        string_to_list = string.split()
+        sub_str_to_lower = ['Bez', 'Dla', 'Do', 'I', 'Jak' 'Lub', 'Na',
+                            'Nad', 'O', 'Od', 'Po', 'Pod', 'Przed', 'Się', 'W', 'Z', 'Ze']
+        result = [
+            substr.lower() if substr in sub_str_to_lower else substr for substr in string_to_list]
+        return " ".join(result)
 
     def create_title_dictionary(self, title):
         return {'asin': self.asin, 'title': title}
@@ -193,20 +209,12 @@ class TitleBuilder:
         title = f"{self.brand} {self.department} {self.model_name} {self.item_name}, {self.color}, {self.size}"
         return self.create_title_dictionary(title)
 
-    def build_title_group11(self):
-        title = f"{self.brand} {self.model_name} {self.model_num} {self.item_name}, {self.color}, {self.size}"
-        return self.create_title_dictionary(title)
-
-    def build_title_group14(self):
-        title = f"{self.brand} {self.model_num} {self.model_num}, {self.color}, {self.size}"
-        return self.create_title_dictionary(title)
-
     def build_title_group2(self):
         title = f"{self.brand} {self.department} {self.model_name} {self.model_num} {self.item_name}, {self.color}, {self.size}"
         return self.create_title_dictionary(title)
 
     def build_title_group3(self):
-        title = f"{self.brand} {self.model_name} sub_brand_name_if_any {self.item_name}, {self.color}, {self.size}"
+        title = f"{self.brand} {self.model_name} {self.sub_brand} {self.item_name}, {self.color}, {self.size}"
         return self.create_title_dictionary(title)
 
     def build_title_group5(self):
@@ -215,6 +223,10 @@ class TitleBuilder:
 
     def build_title_group6(self):
         title = f"{self.brand} {self.model_name} {self.item_name}, {self.color}, {self.size}, {self.wattage} {self.voltage}"
+        return self.create_title_dictionary(title)
+
+    def build_title_group7(self):
+        title = f"{self.brand} {self.model_name} {self.item_name}, {self.color}, {self.wattage} {self.voltage}"
         return self.create_title_dictionary(title)
 
     def build_title_group8(self):
@@ -229,80 +241,73 @@ class TitleBuilder:
         title = f"{self.brand} {self.model_name} {self.item_name}, {self.size}"
         return self.create_title_dictionary(title)
 
-    def build_title_group15(self):
-        title = f"{self.brand} {self.part_num} {self.item_name}, {self.color}, {self.size}"
-        return self.create_title_dictionary(title)
-
-    def build_title_group7(self):
-        title = f"{self.brand} {self.model_name} {self.item_name}, {self.color}, {self.wattage} {self.voltage}"
+    def build_title_group11(self):
+        title = f"{self.brand} {self.model_name} {self.model_num} {self.item_name}, {self.color}, {self.size}"
         return self.create_title_dictionary(title)
 
     def build_title_group12(self):
-        title = f"{self.brand} {self.model_name} {self.model_num} {self.item_name}, processor, memory(ram), storage(dysk), graphic card, operating system, {self.color}, {self.size}"
+        title = f"{self.brand} {self.model_name} {self.model_num} {self.item_name}, {self.cpu_model}, {self.computer_memory} {self.memory_storage_capacity}, {self.hard_disk}, {self.graphics_description}, {self.operating_system}, {self.color}, {self.size}"
+        return self.create_title_dictionary(title)
+
+    def build_title_group14(self):
+        title = f"{self.brand} {self.model_num} {self.item_name}, {self.color}, {self.size}"
+        return self.create_title_dictionary(title)
+
+    def build_title_group15(self):
+        title = f"{self.brand} {self.part_num} {self.item_name}, {self.color}, {self.size}"
         return self.create_title_dictionary(title)
 
 
 def build_titles(list):
     try:
         for dic in list:
-            asin = dic.get('asin')
-            brand = dic.get('brand.value')
-            color = dic.get('color.value')
-            department = dic.get('department.value')
-            GLname = dic.get('gl_product_group_type.value')
-            model_num = dic.get('item_type_name.value')
-            flavour = dic.get('flavour.value')
-            material = dic.get('material.value')
-            model_name = dic.get('model_name.value')
-            model_num = dic.get('model_number.value')
-            part_num = dic.get('part_number.value')
-            size = dic.get('size.value')
-            wattage = dic.get('wattage.value')
-            voltage = dic.get('voltage.value')
-            prodType = dic.get('product_type.value')
-            item_name = dic.get('item_type_name.value')
+            asin = dic['asin']
+            brand = dic['brand.value']
+            color = dic['color.value']
+            department = dic['department.value']
+            product_group_type = dic['gl_product_group_type.value']
+            model_num = dic['item_type_name.value']
+            flavour = dic['flavour.value']
+            material = dic['material.value']
+            model_name = dic['model_name.value']
+            model_num = dic['model_number.value']
+            part_num = dic['part_number.value']
+            size = dic['size.value']
+            wattage = dic['wattage.value']
+            voltage = dic['voltage.value']
+            product_type = dic['product_type.value']
+            item_name = dic['item_type_name.value']
+            cpu_model = dic['cpu_model.value']
+            computer_memory = dic['computer_memory.value']
+            memory_storage_capacity = dic['memory_storage_capacity.value']
+            hard_disk = dic['hard_disk.value']
+            graphics_description = dic['graphics_description']
+            operating_system = dic['operating_system.value']
+            keyboard_layout = dic['keyboard_layout.value']
+            sub_brand = dic['sub_brand.value']
+
+            # number_of_pcs = dic['number_of_pieces.value']
 
             title_builder = TitleBuilder(asin, brand, department, model_name, model_num,
-                                         color, size, flavour, material, part_num, wattage, voltage, item_name)
+                                         color, size, flavour, material, part_num, wattage, voltage, item_name, cpu_model, computer_memory, memory_storage_capacity, hard_disk, graphics_description, operating_system, keyboard_layout, sub_brand)
 
-            if GLname in categories.gl_group1:
-                title_list.append(title_builder.build_title_group1())
-            elif GLname in categories.gl_group14:
-                title_list.append(title_builder.build_title_group14())
-            elif GLname in categories.gl_group2:
-                title_list.append(title_builder.build_title_group2())
-            elif GLname in categories.gl_group3:
-                title_list.append(title_builder.build_title_group3())
-            elif GLname in categories.gl_group6:
-                title_list.append(title_builder.build_title_group6())
-            elif GLname in categories.gl_group8:
-                title_list.append(title_builder.build_title_group8())
-            elif GLname in categories.gl_group9:
-                title_list.append(title_builder.build_title_group9())
-            elif GLname in categories.gl_group10 and prodType in categories.product_group5:
-                title_list.append(title_builder.build_title_group5())
-            elif GLname in categories.gl_group10:
-                title_list.append(title_builder.build_title_group10())
-            elif GLname in categories.gl_group15 and prodType in categories.product_group1:
-                title_list.append(title_builder.build_title_group1())
-            elif GLname in categories.gl_group15:
-                title_list.append(title_builder.build_title_group15())
-            elif GLname in categories.gl_group5 and prodType in categories.product_group11:
-                title_list.append(title_builder.build_title_group11())
-            elif GLname in categories.gl_group5 and prodType in categories.product_group7:
-                title_list.append(title_builder.build_title_group7())
-            elif GLname in categories.gl_group5 and prodType in categories.product_group9:
-                title_list.append(title_builder.build_title_group9())
-            elif GLname in categories.gl_group5 and prodType in categories.product_group8:
-                title_list.append(title_builder.build_title_group8())
-            elif GLname in categories.gl_group5:
-                title_list.append(title_builder.build_title_group5())
-            elif GLname in categories.gl_group11 and prodType in categories.product_group12:
-                title_list.append(title_builder.build_title_group12())
-            elif GLname in categories.gl_group11:
-                title_list.append(title_builder.build_title_group11())
+            def assign_to_build_function(category_name, product_name=None):
+                for product in categories.product_type_groups:
+                    p_name = product['name']
+                    p_id = product['group_id']
+                    if product_name == p_name:
+                        function_name = f"build_title_group{p_id}"
+                        return title_list.append(getattr(title_builder, function_name)())
 
-        cleanMissingData(title_list)
+                for category in categories.category_groups:
+                    c_name = category['name']
+                    c_id = category['group_id']
+                    if category_name == c_name:
+                        function_name = f"build_title_group{c_id}"
+                        return title_list.append(getattr(title_builder, function_name)())
+
+            assign_to_build_function(product_group_type, product_type)
+
         buildFiles()
 
     except KeyError as colName:
@@ -313,6 +318,7 @@ def build_titles(list):
 
 
 def cleanMissingData(list):
+    clean_title_list = []
     for item in list:
         title = str(item['title'])
         asin = item['asin']
@@ -322,6 +328,7 @@ def cleanMissingData(list):
         title = re.sub('[, ]{2,}', ', ', title).strip()
         clean_title_list.append({'asin': asin, 'item_name.value': title.rstrip(',')
                                  if title.endswith(',') else title, 'sc_vendor_name': 'AmazonPl/NM5V9', 'login': userName})
+    return clean_title_list
 
 
 def buildFiles():
@@ -331,7 +338,7 @@ def buildFiles():
         now = datetime.now()
         currentDate = now.strftime("%m%d%Y")
         fileName = f'FLEX_TCU {currentDate}_{userName}'
-        output = pd.DataFrame(clean_title_list)
+        output = pd.DataFrame(cleanMissingData(title_list))
         output.to_excel(f"{outPath}/{fileName}_qa.xlsx", index=False)
         output = output.loc[:, :'sc_vendor_name']
         filepath = f"{outPath}/{fileName}.xlsx"
