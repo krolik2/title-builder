@@ -37,7 +37,7 @@ WIN_HEIGHT = 309
 root.geometry(
     f"{WIN_WIDTH}x{WIN_HEIGHT}+{(get_monitors()[0].width - WIN_WIDTH)//2}+{(get_monitors()[0].height - WIN_HEIGHT)//2}"
 )
-root.title("Papa Cleaner - v1.0.3.2")
+root.title("Papa Cleaner - v1.0.3")
 root.resizable(False, False)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
@@ -405,8 +405,8 @@ def buildFiles():
         output = output.loc[:, :"sc_vendor_name"]
         path = f"{outPath}/{fileName}.xlsx"
         writer = pd.ExcelWriter(path, engine="xlsxwriter")
-        output.to_excel(writer, sheet_name="Sheet1", index=False, startrow=1)
-        worksheet = writer.sheets["Sheet1"]
+        output.to_excel(writer, sheet_name="tcu", index=False, startrow=1)
+        worksheet = writer.sheets["tcu"]
         worksheet.write_string(0, 0, "version=1.0.0")
         writer.save()
         showinfo(message=f"Files created successfully in: {outPath}")
