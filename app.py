@@ -83,16 +83,23 @@ dataList = []
 
 def processData():
     global filepath
-    data = pd.read_excel(filepath, dtype="string")
-    data.fillna("", inplace=True)
-    data.columns = map(str.lower, data.columns)
-    dataList = [asin[1].to_dict() for asin in data.iterrows()]
-    updateStatus("Status: Processing file...")
-    updateStatusBar(len(dataList))
-    build_titles(dataList)
-    filepath = ""
-    run_button["state"] = DISABLED
-    myLabel.config(text=(f"filepath: {filepath}"))
+    data = pd.read_excel(filepath, sheet_name=0, dtype="string")
+    if not data.empty:
+        data.fillna("", inplace=True)
+        data.columns = map(str.lower, data.columns)
+        dataList = [asin[1].to_dict() for asin in data.iterrows()]
+        updateStatus("Status: Processing file...")
+        updateStatusBar(len(dataList))
+        build_titles(dataList)
+        filepath = ""
+        run_button["state"] = DISABLED
+        myLabel.config(text=(f"filepath: {filepath}"))
+    else:
+        filepath = ""
+        run_button["state"] = DISABLED
+        myLabel.config(text=(f"filepath: {filepath}"))
+        root.focus_set()
+        raise Exception(showerror(message=f"Sheet is empty!"))
 
 
 open_button = ttk.Button(frame, text="Open File", command=select_file)
