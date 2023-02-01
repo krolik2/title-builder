@@ -10,7 +10,6 @@ from screeninfo import get_monitors
 import sys
 from more_itertools import pairwise
 from sys import platform
-
 from categories import categories
 
 
@@ -38,7 +37,7 @@ WIN_HEIGHT = 309
 root.geometry(
     f"{WIN_WIDTH}x{WIN_HEIGHT}+{(get_monitors()[0].width - WIN_WIDTH)//2}+{(get_monitors()[0].height - WIN_HEIGHT)//2}"
 )
-root.title("Papa Cleaner - v1.0.3.1")
+root.title("Papa Cleaner - v1.0.3.2")
 root.resizable(False, False)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
@@ -58,18 +57,18 @@ frame.rowconfigure(1, weight=1)
 myLabel = Label(root, text="filepath:")
 myLabel2 = Label(root, text="Status: Idle")
 
+filepath = ""
+
 
 def select_file():
+    global filepath
     filepath = fd.askopenfilename(
         title="Open file", initialdir="/", filetypes=[("Excel files", ".xlsx .xls")]
     )
-
     root.focus_set()
 
     if filepath:
-        global userFile
         myLabel.config(text=(f"filepath: {filepath}"))
-        userFile = filepath
         run_button["state"] = NORMAL
 
     if pb["value"] != 0:
@@ -83,13 +82,17 @@ dataList = []
 
 
 def processData():
-    data = pd.read_excel(userFile)
+    global filepath
+    data = pd.read_excel(filepath, dtype="string")
+    data.fillna("", inplace=True)
     data.columns = map(str.lower, data.columns)
     dataList = [asin[1].to_dict() for asin in data.iterrows()]
     updateStatus("Status: Processing file...")
     updateStatusBar(len(dataList))
-    cleanData(dataList)
     build_titles(dataList)
+    filepath = ""
+    run_button["state"] = DISABLED
+    myLabel.config(text=(f"filepath: {filepath}"))
 
 
 open_button = ttk.Button(frame, text="Open File", command=select_file)
@@ -131,14 +134,6 @@ myLabel2.grid(
 title_list = []
 
 
-def cleanData(list):
-    for dic in list:
-        for k, v in dic.items():
-            if isinstance(v, float):
-                v = "{0:g}".format(v).strip().replace("nan", "")
-            dic[k] = str(v).strip().replace("nan", "")
-
-
 def updateStatus(txt):
     myLabel2.config(text=txt)
 
@@ -167,7 +162,7 @@ class TitleBuilder:
         model_num,
         color,
         size,
-        flavour,
+        flavor,
         material,
         part_num,
         wattage,
@@ -190,7 +185,7 @@ class TitleBuilder:
         self.color = color.title()
         self.size = size
         self.model_num = model_num
-        self.flavour = flavour.title()
+        self.flavor = flavor.title()
         self.material = material.title()
         self.part_num = part_num
         self.wattage = wattage + "W" if wattage else None
@@ -204,19 +199,6 @@ class TitleBuilder:
         self.operating_system = operating_system
         self.keyboard_layout = keyboard_layout
         self.sub_brand = sub_brand
-        # self.number_of_pcs = self.makeStrIfMoreThanOne(self.convert_to_int(number_of_pcs))
-
-    # def convert_to_int(self, x):
-    #     try:
-    #         return int(x)
-    #     except ValueError:
-    #         return 0
-
-    # def makeStrIfMoreThanOne(self, func):
-    #     if func > 1:
-    #         return "x" + str(func)
-    #     else:
-    #         return ""
 
     def lower_case_sub_str(self, string):
         string_to_list = string.split()
@@ -273,7 +255,7 @@ class TitleBuilder:
         return self.create_title_dictionary(title)
 
     def build_title_group8(self):
-        title = f"{self.brand} {self.model_name} {self.item_name}, {self.flavour}, {self.size}"
+        title = f"{self.brand} {self.model_name} {self.item_name}, {self.flavor}, {self.size}"
         return self.create_title_dictionary(title)
 
     def build_title_group9(self):
@@ -289,7 +271,7 @@ class TitleBuilder:
         return self.create_title_dictionary(title)
 
     def build_title_group12(self):
-        title = f"{self.brand} {self.model_name} {self.model_num} {self.item_name}, {self.cpu_model}, {self.computer_memory} {self.memory_storage_capacity}, {self.hard_disk}, {self.graphics_description}, {self.operating_system} {self.keyboard_layout}, {self.color}, {self.size}"
+        title = f"{self.brand} {self.model_name} {self.model_num} {self.item_name}, {self.cpu_model}, {self.computer_memory}, {self.memory_storage_capacity} {self.hard_disk}, {self.graphics_description}, {self.operating_system}, {self.keyboard_layout}, {self.color}, {self.size}"
         return self.create_title_dictionary(title)
 
     def build_title_group14(self):
@@ -314,7 +296,7 @@ def build_titles(list):
             department = dic["department.value"]
             product_group_type = dic["gl_product_group_type.value"]
             model_num = dic["item_type_name.value"]
-            flavour = dic["flavour.value"]
+            flavor = dic["flavor.value"]
             material = dic["material.value"]
             model_name = dic["model_name.value"]
             model_num = dic["model_number.value"]
@@ -333,8 +315,6 @@ def build_titles(list):
             keyboard_layout = dic["keyboard_layout.value"]
             sub_brand = dic["sub_brand.value"]
 
-            # number_of_pcs = dic['number_of_pieces.value']
-
             title_builder = TitleBuilder(
                 asin,
                 brand,
@@ -343,7 +323,7 @@ def build_titles(list):
                 model_num,
                 color,
                 size,
-                flavour,
+                flavor,
                 material,
                 part_num,
                 wattage,
@@ -406,18 +386,25 @@ def cleanMissingData(list):
     return clean_title_list
 
 
+def createDirectory(path):
+    directory = path.split("/")
+    directory.pop()
+    return "/".join(directory)
+
+
 def buildFiles():
+    global title_list
     try:
         pd.io.formats.excel.ExcelFormatter.header_style = None
-        outPath = createDirectory(userFile)
+        outPath = createDirectory(filepath)
         now = datetime.now()
         currentDate = now.strftime("%m%d%Y")
         fileName = f"FLEX_TCU {currentDate}_{userName}"
         output = pd.DataFrame(cleanMissingData(title_list))
         output.to_excel(f"{outPath}/{fileName}_qa.xlsx", index=False)
         output = output.loc[:, :"sc_vendor_name"]
-        filepath = f"{outPath}/{fileName}.xlsx"
-        writer = pd.ExcelWriter(filepath, engine="xlsxwriter")
+        path = f"{outPath}/{fileName}.xlsx"
+        writer = pd.ExcelWriter(path, engine="xlsxwriter")
         output.to_excel(writer, sheet_name="Sheet1", index=False, startrow=1)
         worksheet = writer.sheets["Sheet1"]
         worksheet.write_string(0, 0, "version=1.0.0")
@@ -431,12 +418,8 @@ def buildFiles():
         updateStatus("Status: Idle")
         updateStatusBar(0)
         root.focus_set()
-
-
-def createDirectory(filepath):
-    directory = filepath.split("/")
-    directory.pop()
-    return "/".join(directory)
+    finally:
+        title_list = []
 
 
 root.mainloop()
