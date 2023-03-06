@@ -37,7 +37,7 @@ WIN_HEIGHT = 309
 root.geometry(
     f"{WIN_WIDTH}x{WIN_HEIGHT}+{(get_monitors()[0].width - WIN_WIDTH)//2}+{(get_monitors()[0].height - WIN_HEIGHT)//2}"
 )
-root.title("Papa Cleaner - v1.0.3")
+root.title("Papa Cleaner - v1.0.3.1")
 root.resizable(False, False)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
@@ -384,7 +384,7 @@ def cleanMissingData(list):
         title = re.sub("[, ]{2,}", ", ", title).strip()
         clean_title_list.append(
             {
-                "asin": asin,
+                "ASIN": asin,
                 "item_name.value": title.rstrip(",") if title.endswith(",") else title,
                 "sc_vendor_name": "AmazonPl/NM5V9",
                 "login": userName,
@@ -408,12 +408,12 @@ def buildFiles():
         currentDate = now.strftime("%m%d%Y")
         fileName = f"FLEX_TCU {currentDate}_{userName}"
         output = pd.DataFrame(cleanMissingData(title_list))
-        output.to_excel(f"{outPath}/{fileName}_qa.xlsx", index=False)
+        output.to_excel(f"{outPath}/{fileName}_qa.xlsx", index=False, sheet_name='TCU' )
         output = output.loc[:, :"sc_vendor_name"]
         path = f"{outPath}/{fileName}.xlsx"
         writer = pd.ExcelWriter(path, engine="xlsxwriter")
-        output.to_excel(writer, sheet_name="tcu", index=False, startrow=1)
-        worksheet = writer.sheets["tcu"]
+        output.to_excel(writer, sheet_name="TCU", index=False, startrow=1)
+        worksheet = writer.sheets["TCU"]
         worksheet.write_string(0, 0, "version=1.0.0")
         writer.save()
         showinfo(message=f"Files created successfully in: {outPath}")
