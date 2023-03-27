@@ -37,7 +37,7 @@ WIN_HEIGHT = 309
 root.geometry(
     f"{WIN_WIDTH}x{WIN_HEIGHT}+{(get_monitors()[0].width - WIN_WIDTH)//2}+{(get_monitors()[0].height - WIN_HEIGHT)//2}"
 )
-root.title("Papa Cleaner - v1.0.3.1")
+root.title("Papa Cleaner - v1.0.4")
 root.resizable(False, False)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
@@ -316,8 +316,8 @@ def build_titles(list):
             cpu_model = dic["cpu_model.value"]
             computer_memory = dic["computer_memory.value"]
             memory_storage_capacity = dic["memory_storage_capacity.value"]
-            hard_disk = dic["hard_disk.value"]
-            graphics_description = dic["graphics_description.value"]
+            hard_disk = dic["hard_disk.description.value"]
+            graphics_description = dic["graphics_coprocessor.value"]
             operating_system = dic["operating_system.value"]
             keyboard_layout = dic["keyboard_layout.value"]
             sub_brand = dic["sub_brand.value"]
