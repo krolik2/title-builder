@@ -37,7 +37,7 @@ WIN_HEIGHT = 309
 root.geometry(
     f"{WIN_WIDTH}x{WIN_HEIGHT}+{(get_monitors()[0].width - WIN_WIDTH)//2}+{(get_monitors()[0].height - WIN_HEIGHT)//2}"
 )
-root.title("Papa Cleaner - v1.0.4")
+root.title("Papa Cleaner - v1.0.4.1")
 root.resizable(False, False)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
@@ -188,7 +188,6 @@ class TitleBuilder:
         self.brand = brand.title()
         self.department = department.title()
         self.model_name = model_name.title()
-        self.model_num = model_num.title()
         self.color = color.title()
         self.size = size
         self.model_num = model_num
@@ -199,13 +198,13 @@ class TitleBuilder:
         self.voltage = voltage + "V" if voltage else None
         self.item_name = self.lower_case_sub_str(item_name.title())
         self.cpu_model = cpu_model
-        self.computer_memory = computer_memory
+        self.computer_memory = computer_memory + " RAM" if computer_memory else None
         self.memory_storage_capacity = memory_storage_capacity
         self.hard_disk = hard_disk
         self.graphics_description = graphics_description
         self.operating_system = operating_system
         self.keyboard_layout = keyboard_layout
-        self.sub_brand = sub_brand
+        self.sub_brand = sub_brand.title()
 
     def lower_case_sub_str(self, string):
         string_to_list = string.split()
@@ -226,6 +225,7 @@ class TitleBuilder:
             "Się",
             "W",
             "Z",
+            "Za",
             "Ze",
         ]
         result = [
