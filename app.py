@@ -20,8 +20,6 @@ if platform == "darwin":
 elif platform == "win32":
     userName = os.getenv("username")
 
-userName = os.getenv("username")
-
 
 def resource_path(relative_path):
     try:
@@ -37,7 +35,7 @@ WIN_HEIGHT = 309
 root.geometry(
     f"{WIN_WIDTH}x{WIN_HEIGHT}+{(get_monitors()[0].width - WIN_WIDTH)//2}+{(get_monitors()[0].height - WIN_HEIGHT)//2}"
 )
-root.title("Papa Cleaner - v1.0.4.1")
+root.title("Papa Cleaner - v1.0.4.2")
 root.resizable(False, False)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
@@ -194,11 +192,11 @@ class TitleBuilder:
         self.flavor = flavor.title()
         self.material = material.title()
         self.part_num = part_num
-        self.wattage = wattage + "W" if wattage else None
-        self.voltage = voltage + "V" if voltage else None
+        self.wattage = wattage + "W" if wattage else ""
+        self.voltage = voltage + "V" if voltage else ""
         self.item_name = self.lower_case_sub_str(item_name.title())
         self.cpu_model = cpu_model
-        self.computer_memory = computer_memory + " RAM" if computer_memory else None
+        self.computer_memory = computer_memory + " RAM" if computer_memory else ""
         self.memory_storage_capacity = memory_storage_capacity
         self.hard_disk = hard_disk
         self.graphics_description = graphics_description
