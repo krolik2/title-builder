@@ -281,9 +281,10 @@ def cleanMissingData(list):
         title = re.sub("[, ]{2,}", ", ", title).strip()
         clean_title_list.append(
             {
-                "ASIN": asin,
+                "sku": asin,
+                "contributor_name": "Amazon PL",
+                "contributor_id": "54402072512",
                 "item_name.value": title.rstrip(",") if title.endswith(",") else title,
-                "sc_vendor_name": "AmazonPl/NM5V9",
                 "login": userName,
             }
         )
@@ -306,17 +307,18 @@ def buildFiles():
         fileName = f"FLEX_TCU {currentDate}_{userName}"
         output = pd.DataFrame(cleanMissingData(title_list))
         output.to_excel(f"{outPath}/{fileName}_qa.xlsx", index=False, sheet_name="TCU")
-        output = output.loc[:, :"sc_vendor_name"]
+        output = output.loc[:, :"item_name.value"]
         path = f"{outPath}/{fileName}.xlsx"
         writer = pd.ExcelWriter(path, engine="xlsxwriter")
         output.to_excel(writer, sheet_name="TCU", index=False, startrow=1)
         worksheet = writer.sheets["TCU"]
         worksheet.write_string(0, 0, "version=1.0.0")
+        worksheet.write_string(0, 1, "marketplace_id=712115121")
         writer.save()
         showinfo(message=f"Files created successfully in: {outPath}")
         update_ui("Status: Done!")
-    except:
-        showerror(message="Error writing file!")
+    except Exception as e:
+        showerror(message=f"Error writing file! {e}")
         update_ui("Status: Idle")
     finally:
         title_list = []
