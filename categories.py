@@ -115,7 +115,7 @@ categories = [
         "group_id": 5,
         "name": "gl_pet_products",
         "sub_categories": [
-            {"group_id": 12, "name": "PET_FOOD"},
+            {"group_id": 8, "name": "PET_FOOD"},
         ],
     },
     {"group_id": 5, "name": "gl_wireless"},

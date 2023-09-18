@@ -82,22 +82,53 @@ dataList = []
 def processData():
     global filepath
     data = pd.read_excel(filepath, sheet_name=0, dtype="string")
-    if not data.empty:
-        data.fillna("", inplace=True)
-        data.columns = map(str.lower, data.columns)
-        dataList = [asin[1].to_dict() for asin in data.iterrows()]
-        updateStatus("Status: Processing file...")
-        updateStatusBar(len(dataList))
-        build_titles(dataList)
-        filepath = ""
-        run_button["state"] = DISABLED
-        myLabel.config(text=(f"filepath: {filepath}"))
-    else:
-        filepath = ""
-        run_button["state"] = DISABLED
-        myLabel.config(text=(f"filepath: {filepath}"))
-        root.focus_set()
-        raise Exception(showerror(message=f"Sheet is empty!"))
+    data.columns = map(str.lower, data.columns)
+    required_columns = {
+        "asin",
+        "brand.value",
+        "color.value",
+        "department.value",
+        "gl_product_group_type.value",
+        "flavor.value",
+        "material.value",
+        "model_name.value",
+        "model_number.value",
+        "part_number.value",
+        "size.value",
+        "wattage.value",
+        "voltage.value",
+        "product_type.value",
+        "item_type_name.value",
+        "cpu_model.value",
+        "computer_memory.value",
+        "memory_storage_capacity.value",
+        "hard_disk.description.value",
+        "graphics_coprocessor.value",
+        "operating_system.value",
+        "keyboard_layout.value",
+        "sub_brand.value",
+    }
+
+    def validate_template(required, template):
+        if set(required) <= set(template.columns):
+            template.fillna("", inplace=True)
+            dataList = [asin[1].to_dict() for asin in template.iterrows()]
+            updateStatus("Status: Processing file...")
+            updateStatusBar(len(dataList))
+            build_titles(dataList)
+            filepath = ""
+            run_button["state"] = DISABLED
+            myLabel.config(text=(f"filepath: {filepath}"))
+        else:
+            missing = set(required) - set(template.columns)
+            msg = ("\n").join(sorted(missing))
+            filepath = ""
+            run_button["state"] = DISABLED
+            myLabel.config(text=(f"filepath: {filepath}"))
+            root.focus_set()
+            raise Exception(showerror(message=f"Missing column:\n{msg}"))
+
+    validate_template(required_columns, data)
 
 
 open_button = ttk.Button(frame, text="Open File", command=select_file)
@@ -300,7 +331,6 @@ def build_titles(list):
             color = dic["color.value"]
             department = dic["department.value"]
             product_group_type = dic["gl_product_group_type.value"]
-            model_num = dic["item_type_name.value"]
             flavor = dic["flavor.value"]
             material = dic["material.value"]
             model_name = dic["model_name.value"]
@@ -364,8 +394,8 @@ def build_titles(list):
 
         buildFiles()
 
-    except KeyError as colName:
-        showerror(message=f"Error! Missing column: {colName}")
+    except Exception as e:
+        showerror(message=f"Error! {e}")
         updateStatus("Status: Idle")
         updateStatusBar(0)
         root.focus_set()
@@ -406,7 +436,7 @@ def buildFiles():
         currentDate = now.strftime("%m%d%Y")
         fileName = f"FLEX_TCU {currentDate}_{userName}"
         output = pd.DataFrame(cleanMissingData(title_list))
-        output.to_excel(f"{outPath}/{fileName}_qa.xlsx", index=False, sheet_name='TCU' )
+        output.to_excel(f"{outPath}/{fileName}_qa.xlsx", index=False, sheet_name="TCU")
         output = output.loc[:, :"sc_vendor_name"]
         path = f"{outPath}/{fileName}.xlsx"
         writer = pd.ExcelWriter(path, engine="xlsxwriter")
