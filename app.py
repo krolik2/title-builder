@@ -36,7 +36,7 @@ WIN_HEIGHT = 309
 root.geometry(
     f"{WIN_WIDTH}x{WIN_HEIGHT}+{(get_monitors()[0].width - WIN_WIDTH)//2}+{(get_monitors()[0].height - WIN_HEIGHT)//2}"
 )
-root.title("Papa Cleaner - v1.0.4.2")
+root.title("Papa Cleaner - v1.0.5.1")
 root.resizable(False, False)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
@@ -80,10 +80,19 @@ def select_file():
 dataList = []
 
 
+def lowerCase(name):
+   if(isinstance(name, str)):
+      return name.lower()
+
+
 def processData():
     global filepath
-    data = pd.read_excel(filepath, sheet_name=0, dtype="string")
-    data.columns = map(str.lower, data.columns)
+    data = pd.ExcelFile(filepath)
+    cols = data.parse(sheet_name=0).columns
+    converters = {column: str for column in cols}
+    stringColumns = data.parse(sheet_name=0, converters=converters)
+    df = pd.DataFrame(stringColumns)
+    df.columns = map(lowerCase, df.columns)
     required_columns = {
         "asin",
         "brand.value",
@@ -128,7 +137,7 @@ def processData():
             root.focus_set()
             raise Exception(showerror(message=f"Missing column:\n{msg}"))
 
-    validate_template(required_columns, data)
+    validate_template(required_columns, df)
 
 
 open_button = ttk.Button(frame, text="Open File", command=select_file)
